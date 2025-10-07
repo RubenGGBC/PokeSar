@@ -1,53 +1,33 @@
-import struct
-import socket
-import json
-from typing import List, Dict, Optional
-from dataclasses import dataclass, asdict
+# ver_dinero.py
+# Script mínimo que usa la carga aislada + lectura del save
 
-# Offsets basados en la documentación de ProjectPokemon
-SAVE_FILE_SIZE = 0x100000  # 1MB
-SAVE_1_OFFSET = 0x02000
-SAVE_2_OFFSET = 0x81000
+import os
+from PKHeX_loader import load_pkhex_core
+from save_tools import load_save_from_path, get_money, get_game_label
 
-# Offsets específicos (relativos al inicio del save file)
-PARTY_OFFSET = 0x14200  # Aproximado - necesitas verificar el offset exacto del Block ID
-BOX_OFFSET = 0x04C00    # Aproximado - offset de las cajas
-POKEMON_SIZE = 0xE8     # 232 bytes por Pokémon (formato EK6)
-PARTY_SIZE = 6
-BOX_COUNT = 31
-BOX_SLOTS = 30
+# === Ajusta estas rutas a TU entorno ===
+PKHEX_DLL_DIR = "/home/andoni/Escritorio/SAR/libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0"
+SAVES_DIR     = "/home/andoni/Escritorio/SAR/saves"
+SAVE_FILENAME = "main"   # cambia si tu archivo se llama diferente
 
-@dataclass
-class PokemonData:
-    """Estructura básica de datos de un Pokémon"""
-    id: int
-    nickname: str
-    level: int
-    gender: int
-    is_shiny: bool
-    is_egg: bool
-    encrypted_data: bytes
-    box_number: Optional[int] = None
-    slot_number: Optional[int] = None
+def main():
+    # 1) cargar PKHeX.Core (lógica separada en pkhex_loader)
+    load_pkhex_core(PKHEX_DLL_DIR)
 
-class SaveData:
-    def __init__(self, savepath: str):
-        self.savepath = savepath
-        self.save_data = None
-        self.active_save_offset = SAVE_1_OFFSET
-    def cargarsave(self):
-        with open(self.save_path, 'rb') as f:
-            self.save_data = f.read()
-        if self.save_data != SAVE_FILE_SIZE:
-            print("El archivo esta corrupto")
-    def encontrarParty(self):
-        with open(self.save_path,'rb') as f:
-            self.save_data = f.read()
-            offsetparty=self.active_save_offset + PARTY_OFFSET
-            indexequip=0
-            indexmax=6
+    # 2) cargar el save y leer dinero (lógica en save_tools)
+    save_path = os.path.join(SAVES_DIR, SAVE_FILENAME)
+    if not os.path.exists(save_path):
+        raise FileNotFoundError(f"No encuentro el save en: {save_path}")
 
+    sav = load_save_from_path(save_path)
+    game = get_game_label(sav)
+    money = get_money(sav)
 
+    print("== SAVE CARGADO ==")
+    print("Tipo .NET:", sav.GetType().FullName)
+    if game:
+        print("Juego:", game)
+    print(f"Dinero: {money:,}")
 
-
-
+if __name__ == "__main__":
+    main()
