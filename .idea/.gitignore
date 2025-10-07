@@ -1,0 +1,27 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# OS-specific stuff
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+
+# Byte-compiled and logs
+*.log
