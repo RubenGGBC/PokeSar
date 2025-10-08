@@ -18,13 +18,7 @@ sudo apt install -y dotnet-sdk-8.0
 
 ### 🔹 macOS
 
-Usando Homebrew:
-
-```bash
-brew install --cask dotnet
-```
-
-O desde el instalador oficial:
+desde el instalador oficial:
 [https://dotnet.microsoft.com/en-us/download/dotnet/8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ### 🔹 Windows
