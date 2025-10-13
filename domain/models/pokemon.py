@@ -14,6 +14,7 @@ class Pokemon:
     ability_name: str
     stats: Dict[str,int]
     moveset: list[str]
+    held_item: str
 
     def __init__(self, pkm: Any, game_Strings: Any):
         self.PID = pokemon_pid(pkm)
@@ -26,6 +27,8 @@ class Pokemon:
         self.ability_name = ability_name(game_Strings, pkm.Ability)
         self.stats = read_stats(pkm)
         self.moveset = read_moves(game_Strings, pkm)
+        self.held_item = pokemon_item(game_Strings, pkm.HeldItem)
+
 
     def to_dict(self) -> dict:
         return {
@@ -42,4 +45,5 @@ class Pokemon:
                 "spa": self.stats['spa'], "spd": self.stats['spd'], "spe": self.stats['spe']
             },
             "moveset": [ m for m in self.moveset],
+            "held_item": self.held_item,
         }

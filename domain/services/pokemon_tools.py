@@ -34,3 +34,5 @@ def read_stats(pkm):
 def read_moves(game_string,pkm):
     return [game_string.Move[pkm.Move1],game_string.Move[pkm.Move2],game_string.Move[pkm.Move3],game_string.Move[pkm.Move4]]
 
+def pokemon_item(game_string,item_id):
+    return game_string.Item[item_id]
