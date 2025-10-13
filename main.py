@@ -3,8 +3,8 @@
 # Script mínimo que usa la carga aislada + lectura del save
 
 import os
-from PokeSar.domain.services.pokemon_service import *
-from PokeSar.domain.models.pokemon import Pokemon
+from domain.services.pokemon_service import *
+from domain.models.pokemon import Pokemon
 # === Ajusta estas rutas a TU entorno ===
 PKHEX_DLL_DIR = "./libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0"
 SAVES_DIR     = "./saves"

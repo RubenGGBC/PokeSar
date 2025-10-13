@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Any
-from PokeSar.domain.services.pokemon_tools import *
+from domain.services.pokemon_tools import *
 
 @dataclass()
 class Pokemon:

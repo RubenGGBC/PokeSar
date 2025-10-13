@@ -3,13 +3,12 @@
 # Requiere que pkhex_loader.load_pkhex_core() se haya llamado antes.
 
 import re
-from PokeSar.infrastrucuture.PKHeX_loader import load_pkhex_core
-load_pkhex_core("/home/andoni/Escritorio/SAR/libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0")
+from infrastrucuture.PKHeX_loader import load_pkhex_core
+load_pkhex_core("libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0")
 import PKHeX.Core as core
 from PKHeX.Core import SaveUtil
 from System import Array, Byte
-from PokeSar.domain.services.pokemon_tools import *
-from PokeSar.domain.models.pokemon import Pokemon
+from domain.models.pokemon import Pokemon
 
 
 def load_save(save_path: str):
