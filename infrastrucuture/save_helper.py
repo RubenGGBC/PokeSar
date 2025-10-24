@@ -2,14 +2,14 @@
 # Responsabilidad: lógica para trabajar con saves usando PKHeX.Core
 # Requiere que pkhex_loader.load_pkhex_core() se haya llamado antes.
 
-import re
+
 
 from domain.services.pokemon_tools import pokemon_pid
 from infrastrucuture.PKHeX_loader import load_pkhex_core
 load_pkhex_core("libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0")
 import PKHeX.Core as core
-from PKHeX.Core import SaveUtil
-from System import Array, Byte
+from PKHeX.Core import SaveUtil,SlotEditor, SlotTouchType, SlotTouchResult
+from System import Array, Byte,Int32
 from domain.models.pokemon import Pokemon
 from domain.models.pokemon_in_box import  Pokemon_in_Box
 
@@ -28,20 +28,11 @@ def load_save(save_path: str):
         raise Exception("PKHeX.Core no pudo identificar/cargar el save. ¿Dump correcto/desencriptado?")
     return sav
 
-def try_get_money_direct(sav):
-    """Intento directo: propiedad 'Money' en el objeto save o en sub-objetos comunes."""
-    t = sav.GetType()
-
-    # 1) Money directamente en el save
-    p_money = t.GetProperty("Money")
-    p_money.GetValue(sav, None)
-
-
 
 def get_money(sav):
     """
     Obtiene el dinero desde un objeto 'sav'.
-    Devuelve int (dinero) o lanza excepción si no es posible determinarlo.
+    Devuelve int (dinero)
     """
     t = sav.GetType()
     return t.GetProperty("Money").GetValue(sav, None)
@@ -71,7 +62,33 @@ def iter_boxes(sav):
         box.append(pkm_in_box)
     return box
 
+def transform_idc(box_idx,slot_count):
+    box = box_idx // slot_count
+    slot = box_idx % slot_count
+    return box, slot
+
+def copy_pkm_from_box(orig,box_pos):
+    pkm = orig.BoxData[box_pos]
+    return pkm.Clone()
+
+def first_empty_box_slot(sav):
+    mons = sav.BoxData
+    box_count = sav.BoxCount
+    box = []
+    box_slot_count = sav.BoxSlotCount
+    total_box_slots = box_slot_count * box_count
+    for i in range(total_box_slots):
+        if mons[i].Species == 0 or mons[i].PID == 0:
+            return i
+    return None
 
 
+def paste_pokemon_to_box(dst, pkm, box, slot):
+    dst.SetBoxSlotAtIndex(pkm, Int32(box), Int32(slot))
 
+
+def write_sav(sav,path):
+    raw = sav.Write()
+    with open(path, "wb") as f:
+        f.write(bytearray(raw))
 
