@@ -26,6 +26,11 @@ def main():
     print("Dinero:")
     print(get_money(load_save(save_path)))
 
+    print("BOX:")
+    boxes = get_pokemon_boxes(save_path)
+    for pkm in boxes:
+        print(pkm.to_dict())
+
 
 if __name__ == "__main__":
     main()
