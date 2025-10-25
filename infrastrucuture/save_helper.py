@@ -91,4 +91,13 @@ def write_sav(sav,path):
     raw = sav.Write()
     with open(path, "wb") as f:
         f.write(bytearray(raw))
+def print_inventario_helper(sav):
+    inventory = sav.Inventory
+    game_strings = core.GameInfo.GetStrings(5)
+    for bolsillo in inventory:
+        print(f"\n Estas en el bolsido: {bolsillo}")
+        items = bolsillo.Items
+        for item in items:
+            if item.Count > 0:
+                print(f"ID: {item.Index}, Nombre: {game_strings.itemlist[item.Index]}, Cantidad: {item.Count}")
 
