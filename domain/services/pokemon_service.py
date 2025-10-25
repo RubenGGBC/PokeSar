@@ -1,15 +1,10 @@
 
 from infrastrucuture.save_helper import  *
 
-
-
 def get_pokemon_party(sav_path:str)  -> list[Pokemon]:
     sav = load_save(sav_path)
     mons = iter_party(sav)
     return mons
-
-
-
 
 
 def get_pokemon_boxes(sav_path:str) -> list[Pokemon]:
@@ -35,8 +30,18 @@ def remove_pokemon(orgin,box_pos,path):
     paste_pokemon_to_box(orig, empty_pkm, box, slot)
     write_sav(orig, path)
 
-def print_inventario(save_path:str):
-    sav=load_save(save_path)
-    print_inventario_helper(sav)
+
+def get_random_MT(sav_path:str, write_path:str):
+    sav = load_save(sav_path)
+    inventory = sav.Inventory
+    pouch = get_MT_pouch(inventory)
+    owned = [i.Index for i in pouch.Items if i.Index != 0]
+    all_mt = get_all_MT(sav,pouch)
+    mt_aleatoria = dar_mt_aleatoria(owned,all_mt)
+    pouch.GiveItem(sav,mt_aleatoria,1)
+    print(owned)
+    sav.Inventory = inventory
+    write_sav(sav,write_path)
+    return mt_aleatoria
 
 
