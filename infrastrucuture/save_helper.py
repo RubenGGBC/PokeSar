@@ -7,7 +7,7 @@ from infrastrucuture.PKHeX_loader import load_pkhex_core
 load_pkhex_core("libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0")
 import PKHeX.Core as core
 from PKHeX.Core import SaveUtil,SlotEditor, SlotTouchType, SlotTouchResult
-from System import Array, Byte,Int32
+from System import Array, Byte,Int32, UInt32
 from domain.models.pokemon import Pokemon
 from domain.models.pokemon_in_box import  Pokemon_in_Box
 import random
@@ -35,6 +35,27 @@ def get_money(sav):
     """
     t = sav.GetType()
     return t.GetProperty("Money").GetValue(sav, None)
+
+def withdraw_money(sav, quantity, write_path:str):
+    actual_money = get_money(sav)
+    if actual_money < quantity:
+        print("The user does not have enough money. Quantity to withdraw = ", quantity, ". Actual money = ", actual_money)
+        return -1
+    result_money = actual_money - quantity
+    t = sav.GetType()
+    t.GetProperty("Money").SetValue(sav, UInt32(result_money), None)
+    write_sav(sav, write_path)
+    return get_money(sav)
+
+def add_money(sav, quantity, write_path:str):
+    actual_money = get_money(sav)
+    result_money = actual_money + quantity
+    if result_money > sav.MaxMoney:
+        result_money = sav.MaxMoney
+    t = sav.GetType()
+    t.GetProperty("Money").SetValue(sav, UInt32(result_money), None)
+    write_sav(sav, write_path)
+    return get_money(sav)
 
 def iter_party(sav):
     game_strings = core.GameInfo.GetStrings(5)
@@ -108,5 +129,7 @@ def write_sav(sav,path):
     raw = sav.Write()
     with open(path, "wb") as f:
         f.write(bytearray(raw))
+
+
 
 
