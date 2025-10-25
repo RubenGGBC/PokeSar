@@ -33,6 +33,8 @@ def main():
     for pkm in boxes:
         print(pkm.to_dict())
 
+    get_random_MT(save_path)
+    print("MT:")
     print("Clonando el primer Pokémon de la caja al save destino...")
     clone_pokemon(save_path, save_det, 0,os.path.join(SAVES_DIR, "cloned_"+SAVE_DST))
     remove_pokemon(save_path,191,os.path.join(SAVES_DIR, "removed_" + SAVE_DST))
@@ -41,6 +43,13 @@ def main():
     for pkm in boxes:
         print(pkm.to_dict())
     print_inventario(save_path)
+
+    print("BOX:")
+    boxes = get_pokemon_boxes(os.path.join(SAVES_DIR, "cloned_"+SAVE_DST))
+    for pkm in boxes:
+        print(pkm.to_dict())
+
+
 
 
 if __name__ == "__main__":

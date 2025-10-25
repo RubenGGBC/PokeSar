@@ -39,4 +39,21 @@ def print_inventario(save_path:str):
     sav=load_save(save_path)
     print_inventario_helper(sav)
 
+def get_random_MT(sav_path:str):
+    sav = load_save(sav_path)
+    inventory = sav.Inventory
+    pouch = get_MT_pouch(inventory)
+    owned = [i.Index for i in pouch.Items if i.Index != 0]
+    all_mt = get_all_MT(sav,pouch)
+    mt_aleatoria = dar_mt_aleatoria(owned,all_mt)
+    pouch.GiveItem(sav,mt_aleatoria,1)
+    print(owned)
+    sav.Inventory = inventory
+    write_sav(sav,"temo")
+    sav2 =load_save("temo")
+    pouch = get_MT_pouch(sav2.Inventory)
+    new_mts = [i.Index for i in pouch.Items if i.Index != 0]
+    print(new_mts)
+
+
 
