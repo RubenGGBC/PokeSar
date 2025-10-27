@@ -44,4 +44,10 @@ def get_random_MT(sav_path:str, write_path:str):
     write_sav(sav,write_path)
     return mt_aleatoria
 
-
+def get_random_MT_for_50000(sav_path:str, write_path:str):
+    sav = load_save(sav_path)
+    left_money = withdraw_money(sav,50000, write_path)
+    if left_money < 0:
+        return None
+    print("Money left: ", left_money)
+    return get_random_MT(sav_path,write_path)

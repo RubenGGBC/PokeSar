@@ -51,6 +51,23 @@ def main():
     for pkm in boxes:
         print(pkm.to_dict())
 
+    print("Dinero actual:")
+    print(get_money(load_save(save_path)))
+
+    print("Dinero + 50000:")
+    print(add_money(load_save(save_path), 50000, save_path))
+    print("Dinero actualizado en el sav:")
+    print(get_money(load_save(save_path)))
+
+    print("Dinero - 50000:")
+    print(withdraw_money(load_save(save_path), 50000, save_path))
+    print("Dinero actualizado en el sav:")
+    print(get_money(load_save(save_path)))
+
+
+    print("MT random contando el dinero del usuario...")
+    mt = get_random_MT_for_50000(save_path,os.path.join(SAVES_DIR, "newMT_"+SAVE_DST))
+    print(f"mt dada:{mt}")
 
 
 
