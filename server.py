@@ -2,6 +2,7 @@ import os
 import socket
 import sys
 import signal
+from domain.services.pokemon_service import get_pokemon_boxes
 
 PORT = 12345
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -68,6 +69,39 @@ while True:
                 else:
                     dialogo.send(b"Error no se ha encontrado el jugador")
                     print(f"No sea ha encontrado la save de: {nombre}")
+
+            case b'3':
+                data = dialogo.recv(1024)
+                parts = data.split(b'!!!')
+                nombre = parts[0].decode()
+                separador = int.from_bytes(parts[1], 'big')
+                
+                save_path = f"./saves_server/{nombre}/save.sav"
+                if not os.path.exists(save_path):
+                    dialogo.send(b"Jugador no encontrado")
+                    break
+                
+                box_pokemons = get_pokemon_boxes(save_path)
+                
+                if not box_pokemons:
+                    dialogo.send(b"No hay pokemons en las cajas")
+                else:
+                    offset = 0
+                    while offset < len(box_pokemons):
+                        fin = min(offset + separador, len(box_pokemons))
+                        lote = box_pokemons[offset:fin]
+                        
+                        texto = ""
+                        for pokemon_in_box in lote:
+                            texto += f"{pokemon_in_box.pokemon.nickname} (Lv.{pokemon_in_box.pokemon.level})\n"
+                        
+                        dialogo.send(texto.encode())
+                        
+                        if fin >= len(box_pokemons):
+                            break
+                        
+                        dialogo.recv(1024)
+                        offset += separador
 
             case b'6':
                 if os.path.exists("./saves_server"):
