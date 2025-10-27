@@ -1,11 +1,10 @@
 import socket
 import sys
 import os
-from infrastrucuture.save_helper import *
-from System import Array, Byte,Int32
 
-servidor="LOCALHOST"
-if(len(sys.argv)<2):
+servidor = "localhost"
+
+if len(sys.argv) < 2:
     print("Introduce un comando"
           "\n 1.Upload"
           "\n 2.Download"
@@ -13,28 +12,38 @@ if(len(sys.argv)<2):
           "\n 4.RobarPokemon"
           "\n 5.ClonarPokemon"
           "\n 6.Listar_jugadores")
+    sys.exit(1)
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-dir_s=((12345,servidor))
-sock.connect((servidor, 12345))
-def upload(path_fichero,nombre_jugador):
+
+def upload(path_fichero, nombre_jugador):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((servidor, 12345))
+
     with open(path_fichero, "rb") as f:
         data = f.read()
-    
+
     message = b'1' + data + b'|||' + nombre_jugador.encode()
     sock.sendall(message)
-    
+
     response = sock.recv(1024)
     print(response.decode())
-option=sys.argv[1]
+    sock.close()
+
+
+option = sys.argv[1]
+
 match option.lower():
     case "upload":
-        if(len(sys.argv)!=4):
+        if len(sys.argv) != 4:
             print("Uso: cli.py upload -path -jugador")
-        path_fichero=sys.argv[2]
-        nombre_jugador=sys.argv[3]
-        upload(path_fichero,nombre_jugador)
+        else:
+            path_fichero = sys.argv[2]
+            nombre_jugador = sys.argv[3]
+            upload(path_fichero, nombre_jugador)
+
     case "2":
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((servidor, 12345))
         sock.send(b'6|||')
         data = b''
         while True:
@@ -44,7 +53,7 @@ match option.lower():
             data += chunk
             if len(chunk) < 4096:
                 break
-        
+
         if not data:
             print("No hay jugadores registrados")
         else:
@@ -52,20 +61,28 @@ match option.lower():
             lista_jugadores = [j.decode() for j in jugadores if j]
             if not os.path.exists("save_downloaded"):
                 os.mkdir("save_downloaded")
+        sock.close()
 
     case "6":
-        print("he entrado al caso")
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((servidor, 12345))
         sock.send(b'6')
+
         data = b''
-        print("he salida al caso")
-        while True:
-            chunk = sock.recv(4096)
-            if not chunk:
-                break
-            data += chunk
-            if len(chunk) < 4096:
-                break
-        
+        sock.settimeout(1.0)
+        try:
+            while True:
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                data += chunk
+                if len(chunk) < 4096:
+                    break
+        except socket.timeout:
+            pass
+        finally:
+            sock.settimeout(None)
+
         if data:
             jugadores = data.split(b'!!!')
             print("Jugadores disponibles:")
@@ -75,14 +92,4 @@ match option.lower():
         else:
             print("No hay jugadores registrados")
 
-
-
-
-
-
-
-
-
-
-
-
+        sock.close()
