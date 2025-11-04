@@ -35,7 +35,6 @@ def main():
 
     mt = get_random_MT(save_path,os.path.join(SAVES_DIR, "newMT_"+SAVE_DST))
     print(f"mt dada:{mt}")
-
     print("Clonando el primer Pokémon de la caja al save destino...")
     clone_pokemon(save_path, save_det, 0,os.path.join(SAVES_DIR, "cloned_"+SAVE_DST))
 
