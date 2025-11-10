@@ -10,6 +10,7 @@ PKHEX_DLL_DIR = "./libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0"
 SAVES_DIR     = "./saves"
 SAVE_FILENAME = "main2"   # cambia si tu archivo se llama diferente
 SAVE_DST = "main"
+save_prueba= "./saves_server/Memoni/save.sav"
 
 def main():
     # 1) cargar PKHeX.Core (lógica separada en pkhex_loader)
@@ -29,7 +30,7 @@ def main():
     save_det = os.path.join(SAVES_DIR, SAVE_DST)
 
     print("BOX:")
-    boxes = get_pokemon_boxes(save_path)
+    boxes = get_pokemon_boxes(save_prueba)
     for pkm in boxes:
         print(pkm.to_dict())
 

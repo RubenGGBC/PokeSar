@@ -75,9 +75,10 @@ def iter_boxes(sav):
     box_slot_count = sav.BoxSlotCount
     total_box_slots = box_slot_count * box_count
     for i in range(total_box_slots):
-        pkm = Pokemon(mons[i],game_strings)
-        if pokemon_pid(pkm) == 0:
+        if mons[i].Species == 0:
             continue
+        mons[i].ForcePartyData()
+        pkm = Pokemon(mons[i],game_strings)
         pkm_in_box = Pokemon_in_Box(pkm, i)
         box.append(pkm_in_box)
     return box
@@ -129,6 +130,7 @@ def write_sav(sav,path):
     raw = sav.Write()
     with open(path, "wb") as f:
         f.write(bytearray(raw))
+
 
 
 
