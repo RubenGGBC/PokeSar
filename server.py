@@ -4,6 +4,7 @@ import sys
 import signal
 import json
 from domain.services.pokemon_service import get_pokemon_boxes
+from domain.services.pokemon_service import clone_pokemon
 from menu import Menu
 
 def recibir_datos_completos(dialogo, tamaño_total):
@@ -254,3 +255,86 @@ while True:
                         dialogo.sendall(mensaje)
                     else:
                         dialogo.sendall(b"")
+                case Menu.CLONAR:
+                    if len(partes) < 2:
+                        sendError(dialogo, "No se recibieron datos para CLON")
+                        continue
+
+                    partes_clonar = partes[1].split(Menu.SEPARADOR)
+                    if len(partes_clonar) < 2:
+                        sendError(dialogo, "CLON requiere jugador y posicion")
+                        continue
+
+                    jugador = str(partes_clonar[0].decode().strip())
+                    try:
+                        posicion = int(partes_clonar[1].decode().strip())
+                    except ValueError:
+                        sendError(dialogo, "Posicion debe ser un numero")
+                        continue
+
+                    save_path = str(f"./saves_server/{jugador}/save.sav")
+                    if not os.path.exists(save_path):
+                        sendError(dialogo, "Jugador no encontrado")
+                        print(f"No se encontro el save de: {jugador}")
+                        continue
+
+                    try:
+                        box_pokemons = get_pokemon_boxes(save_path)
+                        if not box_pokemons:
+                            sendError(dialogo, "No hay pokemons en las cajas")
+                            continue
+
+                        print(f"\033[93m{'='*80}\033[0m")
+                        print(f"\033[93mCAJAS ANTES DE CLONAR - {jugador}\033[0m")
+                        print(f"\033[93m{'='*80}\033[0m")
+                        for p in box_pokemons:
+                            if int(p.box_position) == posicion:
+                                print(f"\033[96m>>> Posicion {p.box_position}: {p.pokemon.nickname} (Lv.{p.pokemon.level}) - {p.pokemon.species_name} <<<\033[0m")
+                            else:
+                                print(f"\033[94mPosicion {p.box_position}: {p.pokemon.nickname} (Lv.{p.pokemon.level}) - {p.pokemon.species_name}\033[0m")
+                        print(f"\033[93m{'='*80}\033[0m")
+                        print(f"\033[93mTotal: {len(box_pokemons)} Pokemons\033[0m\n")
+
+                        pokemon_a_clonar = None
+                        for p in box_pokemons:
+                            if int(p.box_position) == posicion:
+                                pokemon_a_clonar = p.pokemon
+                                break
+
+                        if pokemon_a_clonar is None:
+                            sendError(dialogo, f"No hay pokemon en la posicion {posicion}")
+                            print(f"\033[91mNo se encontro pokemon en posicion {posicion} para {jugador}\033[0m")
+                            continue
+
+                        clone_path = str(f"./saves_server/{jugador}/save.sav")
+                        clone_pokemon(save_path, save_path, posicion, clone_path)
+
+                        box_pokemons_despues = get_pokemon_boxes(clone_path)
+                        pokemon_clonado_nuevo = None
+                        for p in box_pokemons_despues:
+                            if int(p.box_position) not in [int(pb.box_position) for pb in box_pokemons]:
+                                pokemon_clonado_nuevo = int(p.box_position)
+                                break
+
+                        print(f"\033[92m{'='*80}\033[0m")
+                        print(f"\033[92mCAJAS DESPUES DE CLONAR - {jugador}\033[0m")
+                        print(f"\033[92m{'='*80}\033[0m")
+                        for p in box_pokemons_despues:
+                            if int(p.box_position) == posicion:
+                                print(f"\033[96m>>> Posicion {p.box_position}: {p.pokemon.nickname} (Lv.{p.pokemon.level}) - {p.pokemon.species_name} (ORIGINAL) <<<\033[0m")
+                            elif pokemon_clonado_nuevo and int(p.box_position) == pokemon_clonado_nuevo:
+                                print(f"\033[95m>>> Posicion {p.box_position}: {p.pokemon.nickname} (Lv.{p.pokemon.level}) - {p.pokemon.species_name} (CLONADO) <<<\033[0m")
+                            else:
+                                print(f"\033[94mPosicion {p.box_position}: {p.pokemon.nickname} (Lv.{p.pokemon.level}) - {p.pokemon.species_name}\033[0m")
+                        print(f"\033[92m{'='*80}\033[0m")
+                        print(f"\033[92mTotal: {len(box_pokemons_despues)} Pokemons\033[0m\n")
+
+                        pokemon_dict = pokemon_a_clonar.to_dict()
+                        payload = bytes(json.dumps(pokemon_dict).encode())
+                        dialogo.sendall(payload)
+                        print(f"\033[92mPokemon clonado exitosamente para {jugador} en posicion {posicion}\033[0m")
+
+                    except Exception as e:
+                        sendError(dialogo, f"Error al clonar pokemon: {str(e)}")
+                        print(f"\033[91mError al clonar pokemon para {jugador}: {e}\033[0m")
+                        continue

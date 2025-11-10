@@ -35,19 +35,13 @@ def upload(nombre_jugador):
 
 def obtener_datos():
     data = b''
-    sock.settimeout(1.0)
-    try:
-        while True:
-            chunk = sock.recv(4096)
-            if not chunk:
-                break
-            data += chunk
-            if len(chunk) < 4096:
-                break
-    except socket.timeout:
-        pass
-    finally:
-        sock.settimeout(None)
+    while True:
+        chunk = sock.recv(4096)
+        if not chunk:
+            break
+        data += chunk
+        if len(chunk) < 4096:
+            break
     return data
 
 def mostrar_pokemons(pokemon_list_json):
@@ -253,3 +247,16 @@ def listar_jugadores():
 def robarpokemon(nombre_jugador, posicion, direccion):
     sock.sendall(comando.encode()+nombre_jugador.encode()+ separador +posicion.encode()+ separador +direccion.encode())
     data=obtener_datos()
+    if data:
+        print(f"Pokemon robado correctamente de {nombre_jugador} en la posicion {posicion}")
+    else:
+        print("Error al robar el pokemon")
+        
+def clonarpokemon(nombre_jugador, posicion):
+    sock.sendall(comando.encode() + separador + nombre_jugador.encode() + separador + str(posicion).encode())
+    pokemon = obtener_datos()
+    if pokemon:
+        print(f"\033[92mPokemon clonado correctamente de {nombre_jugador} en la posicion {posicion}\033[0m")
+        mostrar_pokemons(pokemon.decode())
+    else:
+        print("\033[91mError al clonar el pokemon\033[0m")

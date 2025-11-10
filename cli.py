@@ -63,8 +63,12 @@ while True:
 
             case Menu.LIST:
                 cli_methods.listar_jugadores()
+            case Menu.CLONAR:
+                nombre_jugador = input("Introduce el nombre del jugador al que quieres clonar el pokemon: ")
+                posicion = int(input("Introduce la posicion del pokemon: "))
+                cli_methods.clonarpokemon(nombre_jugador, posicion)
 
-            case "robarpokemons":
+            case Menu.STEAL:
                 nombre_jugador = input("Introduce el nombre del jugador al que quieres robarle el pokemon: ")
                 posicion = int(input("Introduce la posicion del pokemon: "))
                 direccion = input("Introduce la direccion de tu archivo de guardado: ")
