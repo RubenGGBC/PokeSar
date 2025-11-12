@@ -35,13 +35,23 @@ def upload(nombre_jugador):
 
 def obtener_datos():
     data = b''
-    while True:
-        chunk = sock.recv(4096)
-        if not chunk:
-            break
-        data += chunk
-        if len(chunk) < 4096:
-            break
+    # Guardar el timeout original
+    timeout_original = sock.gettimeout()
+    try:
+        # Usar un timeout corto para detectar cuando no hay más datos
+        sock.settimeout(0.5)
+        while True:
+            try:
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                data += chunk
+            except socket.timeout:
+                # Timeout significa que no hay más datos disponibles
+                break
+    finally:
+        # Restaurar el timeout original
+        sock.settimeout(timeout_original)
     return data
 
 def mostrar_pokemons(pokemon_list_json):
@@ -254,9 +264,41 @@ def robarpokemon(nombre_jugador, posicion, direccion):
         
 def clonarpokemon(nombre_jugador, posicion):
     sock.sendall(comando.encode() + separador + nombre_jugador.encode() + separador + str(posicion).encode())
-    pokemon = obtener_datos()
-    if pokemon:
-        print(f"\033[92mPokemon clonado correctamente de {nombre_jugador} en la posicion {posicion}\033[0m")
-        mostrar_pokemons(pokemon.decode())
-    else:
-        print("\033[91mError al clonar el pokemon\033[0m")
+
+    # Recibir primero los 4 bytes del tamaño
+    cab = sock.recv(4)
+    if not cab:
+        print("\033[91mNo se recibió respuesta del servidor\033[0m")
+        return
+
+    # Verificar si es un error
+    if cab.startswith(Menu.ERROR.encode()):
+        resto = b''
+        try:
+            resto = sock.recv(4096)
+        except Exception:
+            pass
+        mensaje = (cab + resto).decode(errors='ignore')
+        print(f"\033[91mError del servidor: {mensaje}\033[0m")
+        return
+
+    # Asegurarse de tener 4 bytes completos
+    if len(cab) < 4:
+        falta = 4 - len(cab)
+        mas = sock.recv(falta)
+        if not mas:
+            print("\033[91mRespuesta incompleta del servidor\033[0m")
+            return
+        cab += mas
+
+    # Obtener el tamaño del payload
+    tam_payload = int.from_bytes(cab, 'big')
+
+    # Recibir exactamente tam_payload bytes
+    pokemon = recibir_datos_completos(tam_payload)
+    if pokemon is None:
+        print("\033[91mTransferencia interrumpida\033[0m")
+        return
+
+    print(f"\033[92mPokemon clonado correctamente de {nombre_jugador} en la posicion {posicion}\033[0m")
+    mostrar_pokemons(pokemon.decode())

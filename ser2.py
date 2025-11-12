@@ -5,9 +5,10 @@ from pathlib import Path
 import helpers
 import ser_helpers
 from cli2 import activeUser
-from domain.services.pokemon_service import clone_pokemon
+# NO importar clone_pokemon aquí - lo haremos después del fork
 from helpers import Comando
 from ser_helpers import Evento, sendER
+# NO importar load_pkhex_core aquí - lo haremos después del fork
 
 PORT = 12345
 
@@ -111,22 +112,26 @@ def session(sock):
             if jugador is None or posicion is None:
                 ser_helpers.sendER(sock, 0)
                 continue
+
             orig_sav = os.path.join(ser_helpers.SAV_PATH,jugador,ser_helpers.DEFAULT_SAV_NAME)
             dest_sav = os.path.join(path_save_usuario, ser_helpers.DEFAULT_SAV_NAME)
             #orig_sav = Path(ser_helpers.SAV_PATH/Path(jugador)/Path(ser_helpers.DEFAULT_SAV_NAME)).expanduser()
             #dest_sav = Path(path_save_usuario/Path(ser_helpers.DEFAULT_SAV_NAME)).expanduser()
             print("orig_sav:",orig_sav)
             print("dest_sav:",dest_sav)
+
             try:
-                res = clone_pokemon(orig_sav, dest_sav, posicion, dest_sav)
+                # Importación diferida - solo cuando se necesita
+                from domain.services.pokemon_service import clone_pokemon
+                res = clone_pokemon(orig_sav, dest_sav, int(posicion), dest_sav)
             except Exception as e:
                 print(e)
                 res = 1
             if res == 1:
                 ser_helpers.sendER(sock,6)
                 continue
-            ser_helpers.sendOK(sock,res)
-
+            escribir_log(Evento.ClonarPokemon, usuario_sesion, jugador, posicion)
+            ser_helpers.sendOK(sock, str(res).encode())
         elif msg.startswith(Comando.Salir):
             ser_helpers.sendOK(sock)
             return
@@ -143,6 +148,7 @@ def main():
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
     ser_helpers.initpaths()
+    # El padre NO carga pkhex, lo harán los hijos
 
     while True:
         dialog, addr = sock.accept()
@@ -150,7 +156,11 @@ def main():
         if os.fork():
             dialog.close()
         else:
+            # Cada hijo carga pkhex después del fork
             sock.close()
+            # Importación diferida para evitar threads en el padre antes del fork
+            from infrastrucuture.PKHeX_loader import load_pkhex_core
+            load_pkhex_core("libs/pkhexcore/PKHeX.Core.24.5.5/lib/net8.0")
             session(dialog)
             dialog.close()
             exit(0)

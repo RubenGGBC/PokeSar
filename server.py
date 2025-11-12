@@ -330,9 +330,14 @@ while True:
                         print(f"\033[92mTotal: {len(box_pokemons_despues)} Pokemons\033[0m\n")
 
                         pokemon_dict = pokemon_a_clonar.to_dict()
-                        payload = bytes(json.dumps(pokemon_dict).encode())
+                        payload = json.dumps(pokemon_dict).encode()
+
+                        # Enviar primero el tamaño del payload (4 bytes) y luego los datos
+                        tamaño_payload = len(payload)
+                        tamaño_bytes = tamaño_payload.to_bytes(4, 'big')
+                        dialogo.sendall(tamaño_bytes)
                         dialogo.sendall(payload)
-                        print(f"\033[92mPokemon clonado exitosamente para {jugador} en posicion {posicion}\033[0m")
+                        print(f"\033[92mPokemon clonado exitosamente para {jugador} en posicion {posicion} ({tamaño_payload} bytes)\033[0m")
 
                     except Exception as e:
                         sendError(dialogo, f"Error al clonar pokemon: {str(e)}")

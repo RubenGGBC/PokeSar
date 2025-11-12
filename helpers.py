@@ -17,7 +17,7 @@ ERROR_MSG = (
     )
 
 class Comando:
-    User, Upload, Download, MostrarPokemon, ListarJugadores, Clonar, RecibirMt, Salir = ("USER","UPLD","DWLD","PKMN","LIST","CLON","RCMT","EXIT")
+    User, Upload, Download, MostrarPokemon, ListarJugadores, Clonar, Salir = ("USER","UPLD","DWLD","PKMN","LIST","CLON","EXIT")
 
 
 def recvline( s, removeEOL = True ):

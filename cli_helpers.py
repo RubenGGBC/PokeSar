@@ -1,9 +1,9 @@
 
 class Menu:
 
-    User,Upload,Download,MostrarPokemon,ListarJugadores,Clonar,RecibirMt,Salir = range(1,9)
+    User,Upload,Download,MostrarPokemon,ListarJugadores,Clonar,Salir = range(1,8)
     Next,Prev,Show,Stop = range(1,5)
-    opciones_menu = ("Iniciar sesion", "Subir fichero", "Descargar fichero", "Mostrar pokemons", "Listar jugadores", "Clonar Pokemon", "Recibir MT", "Salir")
+    opciones_menu = ("Iniciar sesion", "Subir fichero", "Descargar fichero", "Mostrar pokemons", "Listar jugadores", "Clonar Pokemon",  "Salir")
     opciones_pokemons = ("Siguiente", "Anterior","Mostrar jugador", "Salir")
 
 
