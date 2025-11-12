@@ -11,7 +11,9 @@ ERROR_MSG = (
     "No ha sido posible iniciar sesion",
     "Error al subir fichero",
     "Error al bajar el fichero.",
-    "Un usuario anonimo no tiene permisos para esta operacion."
+    "Un usuario anonimo no tiene permisos para esta operacion.",
+    "El directorio esta vacio",
+    "No se ha podido clonar"
     )
 
 class Comando:

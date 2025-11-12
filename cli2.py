@@ -1,11 +1,10 @@
 import socket
 import sys
 import os
-from os import mkdir, makedirs
+from os import  makedirs
 from pathlib import Path
 
 import helpers
-import cli_helpers
 from cli_helpers import Menu
 from helpers import Comando
 
@@ -89,6 +88,28 @@ if __name__ == "__main__":
                         print("Fichero descargado correctamente")
                     except OSError:
                         print("El archivo no se ha podido descargar")
+
+            case Menu.ListarJugadores:
+                msj = Comando.ListarJugadores + helpers.FIN_LINEA
+                sock.sendall(msj.encode())
+                resp = helpers.recvline(sock).decode()
+                if helpers.iserror(resp):
+                    continue
+                jugadores = resp[3:].split(helpers.SEPARADOR_ARGS)
+                print("Jugadores disponibles")
+                for jugador in jugadores:
+                    print(jugador)
+
+            case Menu.Clonar:
+                jugador = str(input("Introduce el jugador al que le pertenece el pokemon: "))
+                posicion = str(input("Introduce la posicion del pokemon: "))
+                msj = Comando.Clonar+jugador+helpers.SEPARADOR_ARGS+posicion+helpers.FIN_LINEA
+                sock.sendall(msj.encode())
+                resp = helpers.recvline(sock).decode()
+                if helpers.iserror(resp):
+                    continue
+                print(resp)
+
             case Menu.Salir:
                 msj = Comando.Salir + helpers.FIN_LINEA
                 sock.sendall(msj.encode())

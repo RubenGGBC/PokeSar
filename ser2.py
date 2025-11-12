@@ -4,6 +4,8 @@ import signal
 from pathlib import Path
 import helpers
 import ser_helpers
+from cli2 import activeUser
+from domain.services.pokemon_service import clone_pokemon
 from helpers import Comando
 from ser_helpers import Evento, sendER
 
@@ -88,8 +90,44 @@ def session(sock):
             else:
                 ser_helpers.sendER(sock, 3)
 
-        elif msg.startswith(Comando.Salir):
+        elif msg.startswith(Comando.ListarJugadores):
+            msg = ""
+            directorios = [d.name for d in ser_helpers.SAV_PATH.iterdir() if d.is_dir()]
+            if not directorios:
+                ser_helpers.sendER(sock, 5)
+                continue
+            for nombre in directorios:
+                msg += f"{nombre}{helpers.SEPARADOR_ARGS}"
+            msg = msg[:-1]
+            msg+= helpers.FIN_LINEA
+            ser_helpers.sendOK(sock, msg)
 
+        elif msg.startswith(Comando.Clonar):
+            if activeUser is None:
+                ser_helpers.sendER(sock, 2)
+                continue
+            params = msg[4:]
+            jugador,posicion = params.split(helpers.SEPARADOR_ARGS)
+            if jugador is None or posicion is None:
+                ser_helpers.sendER(sock, 0)
+                continue
+            orig_sav = os.path.join(ser_helpers.SAV_PATH,jugador,ser_helpers.DEFAULT_SAV_NAME)
+            dest_sav = os.path.join(path_save_usuario, ser_helpers.DEFAULT_SAV_NAME)
+            #orig_sav = Path(ser_helpers.SAV_PATH/Path(jugador)/Path(ser_helpers.DEFAULT_SAV_NAME)).expanduser()
+            #dest_sav = Path(path_save_usuario/Path(ser_helpers.DEFAULT_SAV_NAME)).expanduser()
+            print("orig_sav:",orig_sav)
+            print("dest_sav:",dest_sav)
+            try:
+                res = clone_pokemon(orig_sav, dest_sav, posicion, dest_sav)
+            except Exception as e:
+                print(e)
+                res = 1
+            if res == 1:
+                ser_helpers.sendER(sock,6)
+                continue
+            ser_helpers.sendOK(sock,res)
+
+        elif msg.startswith(Comando.Salir):
             ser_helpers.sendOK(sock)
             return
 

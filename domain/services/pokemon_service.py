@@ -17,10 +17,13 @@ def clone_pokemon(orig_sav,dst_sav, box_pos,path):
     dst = load_save(dst_sav)
     slot_count = orig.BoxSlotCount
     pkm = copy_pkm_from_box(orig,box_pos)
+    if pkm is None:
+        return 1
     empty_slot = first_empty_box_slot(dst)
     box, slot = transform_idc(empty_slot,slot_count)
     paste_pokemon_to_box(dst, pkm, box, slot)
     write_sav(dst,path)
+    return pkm
 
 def remove_pokemon(orgin,box_pos,path):
     orig = load_save(orgin)

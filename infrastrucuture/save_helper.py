@@ -90,6 +90,8 @@ def transform_idc(box_idx,slot_count):
 
 def copy_pkm_from_box(orig,box_pos):
     pkm = orig.BoxData[box_pos]
+    if pkm is None:
+        return None
     return pkm.Clone()
 
 def first_empty_box_slot(sav):
